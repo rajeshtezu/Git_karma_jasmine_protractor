@@ -1,0 +1,139 @@
+GIT:
+----
+
+-> Creating account for git user:
+----------------------------------
+	$git config --global user.name "Rajesh Kumar"
+	$git config --global user.email "something@gmail.com"
+
+	$git config --list  --> it will show all the  settings
+	$git cofing user.email  --> To show specific settings. here user email
+
+-> Create git repository/Project:
+---------------------------------
+	-> navigate to the directory you want to make git repository and type
+	$git init
+
+
+$git add .  ---> add the changes in the directory/all_files [adding into the staging area] {working copy -> staging area -> repository}
+$git add fileName --> to add particular file in staging area
+	
+	Note: Staging area is where files are ready to commit, commit is pushing files into repository
+
+$git commit -m "some message" ---> To commit the changes, messages are used to keep track of changes, we can goto any commit using commit msg
+
+$git log  ---> display our commit history
+$git log --author="Rajesh"  --> it will show commit history of only specified user/team_member, Note: no need to provide full name of author
+$git status --> it displays information about files which has not been commited yet.
+
+
+---->After editing files, add the files in staging area and then commit
+
+$git diff  --> it displays difference between working copy and repository file
+
+$git diff --staged ----> it displays difference between staging area and repository file
+
+$git rm fileName ---> it deletes file in repository as well as working copy. Don't forget to commit after removing file
+
+## How to rename a file:
+------------------------
+ -> Rename your file from directory directly then do the following
+ 	Note: Just after renaming file if we check status it will show file deleted
+ 	
+ 	$git add newName
+ 	$git rm oldName
+ 	
+ 	Now check: status will show file renamed
+ 		$git status
+ 	
+ 	Note: Don't use above method
+ 	
+ 	$git mv oldName newName  ---> simply rename your file. Don't forget to commit.
+
+
+## Commit directly to the repository:
+-------------------------------------
+	-> Use this only when you want to commit all the files.
+	-> Applicable only when files are edited, not added new files or deleted any files
+	
+	$git commit -am "commit message"
+	
+
+## Undo the changes in working directory/take file from repository to working directory
+---------------------------------------------------------------------------------------
+	$git checkout -- <filename>
+	
+## Unstage files: Bringing from staging area to working area
+------------------------------------------------------------
+	$git reset HEAD <fileName>
+	
+## Getting old versions from the repossitory:
+---------------------------------------------
+	$git checkout <commit id's few chars> -- <fileName>
+		->then commit your changes
+	Note: commit id could be found by checking "git log"
+	
+## GitHub:
+----------
+	-> create a repository on your github account.
+	-> it will then show "Quick setup" page with git url of the created project repository.
+	
+	Now do the following on your git shell:
+	---------------------------------------
+		$git remote add <git_url_nick_name> <url>   ----> it will create remote connection with github repository
+		
+		Eg: $git remote add githubRepo https://github.com/rajeshtezu90/Example1.git
+		
+		$git remote  ---> will show git_url_nick_name
+		
+		$git push -u <git_url_nick_name> master  ----> it will upload your local repository on github repository
+		
+		Note: whenever we make any changes or add another file in our repository we just commit and push on github
+	
+## .gitignore:
+--------------
+	if we want to exclude some files to be added to our repository the we create this file and write unwanted file names.
+	
+	Eg:
+		file name: .gitignore
+		---------------------
+		.idea
+		admin/settings.html
+		
+## Branches:
+------------
+		
+		
+		
+		
+		
+		
+		
+		
+	
+	
+	
+	
+	
+	
+	
+	
+	
+			
+	
+
+	
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
