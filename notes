@@ -86,7 +86,7 @@ $git rm fileName ---> it deletes file in repository as well as working copy. Don
 		
 		$git remote  ---> will show git_url_nick_name
 		
-		$git push -u <git_url_nick_name> master  ----> it will upload your local repository on github repository
+		$git push -u <git_url_nick_name> master  ----> it will upload your local repository on github repository (in master branch)
 		
 		Note: whenever we make any changes or add another file in our repository we just commit and push on github
 	
