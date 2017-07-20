@@ -1,0 +1,172 @@
+
+
+Reference: https://scotch.io/tutorials/testing-angularjs-with-jasmine-and-karma-part-1
+
+
+karma.conf.js
+--------------
+
+module.exports = function(config) {
+  config.set({
+    basePath: '',
+    frameworks: ['jasmine'],
+    files: [
+    ],
+    exclude: [
+    ],
+    preprocessors: {
+    },
+    reporters: ['progress'],
+    port: 9876,
+    colors: true,
+    logLevel: config.LOG_INFO,
+    autoWatch: true,
+    browsers: ['Chrome'],
+    singleRun: false,   ----------------> this line tells once you have run karma, you don't need to run it agian when
+    concurrency: Infinity		  you add some new tests or change something within the existing test.	
+  })
+}
+
+
+-> karma suit: Collection of tests
+
+filename: users.spec.js
+-----------------------
+describe('Users factory', function() {
+});
+
+-> Adding test (with "it" function) within the suit
+
+describe('Users factory', function() {
+  it('has a dummy spec to test 2 + 2', function() {
+    // An intentionally failing test. No code within expect() will never equal 4.
+    expect(<some value or expression>).toEqual(4);  ---------> checks <some value or expression> is equal to 4 or not
+  });
+});
+
+
+
+-> Adding "users.spec.js" file to "karma.conf.js" so that we can run "users.spec.js" test file
+
+module.exports = function(config) {
+  config.set({
+    basePath: '',
+    frameworks: ['jasmine'],
+    files: [
+      './app/services/users/users.spec.js'
+    ],
+    exclude: [
+    ],
+    ...
+  })
+}
+
+-> run the karma usign following command:
+	$karma start
+
+-----------------------------------------------------------------------------------------------------------------
+
+## Testing an Angular Factory
+
+-> First create test for User factory, then we will write the actual factory.
+
+Factory name: Users
+-------------------
+describe('Users factory', function() {
+  var Users;
+
+  // Before each test load our api.users module
+  beforeEach(angular.mock.module('api.users'));
+
+  // Before each test set our injected Users factory (_Users_) to our local Users variable
+  beforeEach(inject(function(_Users_){   -----> We are using Factory name surrounded with underscore a/c to Angular  
+    Users = _Users_;			        convention to distinguish between suit variable and injected var.
+  }));
+
+  // A simple test to verify the Users factory exists
+  it('should exist', function() {
+    expect(Users).toBeDefined(); -------> checks whether "User" exists or not
+  });
+});
+
+Note: please go through the comments.
+
+Now break down above code:
+
+--->  beforeEach() is a function provided by Jasmine that allows us to run code before each test we've written is            executed.
+
+---> angular.mock.module() is a function provided to us by angular-mocks which we installed earlier. We've specified
+     our module here, api.users, so that it's available for us to use in our tests.
+
+---> After that is another beforeEach block with inject being used to access the service we want to test - Users.
+
+---> Finally, there's a test spec that expects our Users service to be defined.
+
+
+-> Now add Angular files path  in karma.conf.js file to start testing Angular Projects
+
+ frameworks: ['jasmine'],
+  files: [
+    './node_modules/angular/angular.js',                             // angular
+    './node_modules/angular-ui-router/release/angular-ui-router.js', // ui-router
+    './node_modules/angular-mocks/angular-mocks.js',                 // loads our modules for tests
+    './app/services/users/users.js',                                 // our Users factory
+    './app/app.js',                                                  // our angular app
+    './app/services/users/users.spec.js'                             // our test file for our Users factory
+  ],
+  exclude: [],
+
+
+Note: The order of our files within the files property is important since it determines the order in which they're loaded into the browser when Karma is run. That's why Angular and all of its related code are placed up top, then the application files, and finally the test files.
+
+
+-> Back in app/services/users open users.js and add the following code to create our Users factory which returns an empty object.
+
+
+(function() {
+  'use strict';
+
+  // Creating the module and factory we referenced in the beforeEach blocks in our test file
+  angular.module('api.users', [])
+  .factory('Users', function() {
+    var Users = {};
+
+    // Users.method = function() {};
+
+    return Users;
+  });
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
