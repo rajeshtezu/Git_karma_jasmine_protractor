@@ -1,7 +1,5 @@
 
-
 Reference: https://scotch.io/tutorials/testing-angularjs-with-jasmine-and-karma-part-1
-
 
 karma.conf.js
 --------------
@@ -137,7 +135,10 @@ Note: The order of our files within the files property is important since it det
   });
 })();
 
+--------------------------------------------------------------------------------------------------------------------------------------
 
+Reference for testing css: 
+https://github.com/ferronrsmith/angularjs-jasmine-matchers
 
 
 
