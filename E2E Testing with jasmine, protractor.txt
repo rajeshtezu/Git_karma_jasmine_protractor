@@ -1,0 +1,245 @@
+## E2E Testing for AngularJs with jasmine and protractor:
+---------------------------------------------------------
+
+
+Reference: http://www.protractortest.org/#/tutorial
+
+
+# Prerequisites:
+----------------
+
+-> Need to have Node.js installed.
+-> download Protractor package using npm.
+-> Check version of node (node --version) and also check Protractor version compatibility(https://github.com/angular/protractor#compatibility).
+-> By default, Protractor uses the Jasmine test framework for its testing interface.[Here version 2.4 is being used]
+
+Note: This tutorial will set up a test using a local standalone Selenium Server to control browsers. 
+      You will need to have the Java Development Kit (JDK) installed to run the standalone Selenium Server. 
+      Check this by running java -version from the command line.
+
+
+# Setup:
+--------
+
+Run follwing commands:
+
+$npm install -g protractor
+$webdriver-manager update
+$webdriver-manager start
+
+check: $protractor --version
+open: http://localhost:4444/wd/hub
+
+
+# Step 0 - write a test:
+------------------------
+
+-> Open a new command line or terminal window and create a clean folder for testing.
+-> Protractor needs two files to run, a spec file and a configuration file.
+-> We’ll use the Super Calculator application at http://juliemr.github.io/protractor-demo/.
+
+spec.js:
+--------
+describe('Protractor Demo App', function() {
+  it('should have a title', function() {
+    browser.get('http://juliemr.github.io/protractor-demo/');
+
+    expect(browser.getTitle()).toEqual('Super Calculator');
+  });
+});
+
+  -> browser is a global created by Protractor.
+
+conf.js:
+--------
+exports.config = {
+  framework: 'jasmine',
+  seleniumAddress: 'http://localhost:4444/wd/hub',  ---> tells where to talk to your Selenium Server
+  specs: ['spec.js']	----> tells Protractor where your test files (specs) are.
+}
+
+
+Now run the test with:  $protractor conf.js
+
+You should see a Chrome browser window open up and navigate to the Calculator, then close itself (this should be very fast!).
+The test output should be 1 tests, 1 assertion, 0 failures. Congratulations, you've run your first Protractor test!
+
+
+
+# Step 1 - interacting with elements:
+-------------------------------------
+
+-> Now let's modify the test to interact with elements on the page. Change spec.js to the following:
+
+// spec.js
+describe('Protractor Demo App', function() {
+  it('should add one and two', function() {
+    browser.get('http://juliemr.github.io/protractor-demo/');
+    element(by.model('first')).sendKeys(1);
+    element(by.model('second')).sendKeys(2);
+
+    element(by.id('gobutton')).click();
+
+    expect(element(by.binding('latest')).getText()).toEqual('5'); // This is wrong!
+  });
+});
+
+-> Here element, by are globals.
+-> element takes one parameter, a Locator, which describes how to find the element. The by object creates Locators.
+
+
+Run the tests with: protractor conf.js
+
+--> You should see the page enter two numbers and wait for the result to be displayed. Because the result is 3, not 5, 
+    our test fails. Fix the test and try running it again.
+
+
+# Step 2 - writing multiple scenarios:
+--------------------------------------
+
+-> Let's put these two tests together and clean them up a bit. Change spec.js to the following
+
+// spec.js
+describe('Protractor Demo App', function() {
+  var firstNumber = element(by.model('first'));
+  var secondNumber = element(by.model('second'));
+  var goButton = element(by.id('gobutton'));
+  var latestResult = element(by.binding('latest'));
+
+  beforeEach(function() {
+    browser.get('http://juliemr.github.io/protractor-demo/');
+  });
+
+  it('should have a title', function() {
+    expect(browser.getTitle()).toEqual('Super Calculator');
+  });
+
+  it('should add one and two', function() {
+    firstNumber.sendKeys(1);
+    secondNumber.sendKeys(2);
+
+    goButton.click();
+
+    expect(latestResult.getText()).toEqual('3');
+  });
+
+  it('should add four and six', function() {
+    // Fill this in.
+    expect(latestResult.getText()).toEqual('10');
+  });
+});
+
+
+# Step 3 - changing the configuration:
+--------------------------------------
+
+-> The configuration file lets you change things like which browsers are used and how to connect to the Selenium Server.
+
+-> Let's change the browser. Change conf.js to the following:
+
+// conf.js
+exports.config = {
+  framework: 'jasmine',
+  seleniumAddress: 'http://localhost:4444/wd/hub',
+  specs: ['spec.js'],
+  capabilities: {
+    browserName: 'firefox'
+  }
+}
+
+--> Try running the tests again. You should see the tests running on Firefox instead of Chrome.
+
+
+-> You can also run tests on more than one browser at once. Change conf.js to:
+
+// conf.js
+exports.config = {
+  framework: 'jasmine',
+  seleniumAddress: 'http://localhost:4444/wd/hub',
+  specs: ['spec.js'],
+  multiCapabilities: [{
+    browserName: 'firefox'
+  }, {
+    browserName: 'chrome'
+  }]
+}
+
+--> Try running once again. You should see the tests running on Chrome and Firefox simultaneously, and the results 
+reported separately on the command line.
+
+
+
+# Step 4 - lists of elements:
+-----------------------------
+
+-> To deal with list of multiple elements we can use element.all,  which returns an ElementArrayFinder.
+-> In our calculator application, every operation is logged in the history, which is implemented on the site 
+   as a table with ng-repeat.
+
+Let's do a couple of operations, then test that they're in the history. Change spec.js to:
+
+// spec.js
+describe('Protractor Demo App', function() {
+  var firstNumber = element(by.model('first'));
+  var secondNumber = element(by.model('second'));
+  var goButton = element(by.id('gobutton'));
+  var latestResult = element(by.binding('latest'));
+  var history = element.all(by.repeater('result in memory'));
+
+  function add(a, b) {
+    firstNumber.sendKeys(a);
+    secondNumber.sendKeys(b);
+    goButton.click();
+  }
+
+  beforeEach(function() {
+    browser.get('http://juliemr.github.io/protractor-demo/');
+  });
+
+  it('should have a history', function() {
+    add(1, 2);
+    add(3, 4);
+
+    expect(history.count()).toEqual(2);
+
+    add(5, 6);
+
+    expect(history.count()).toEqual(0); // This is wrong! It should be 3.
+  });
+});
+
+--> We've done a couple things here - first, we created a helper function, add. We've added the variable history. 
+    We use element.all with the by.repeater Locator to get an ElementArrayFinder. In our spec, we assert that the 
+    history has the expected length using the count method. Fix the test so that the second expectation passes.
+
+
+ElementArrayFinder has many methods in addition to count. Let's use last to get an ElementFinder that matches 
+the last element found by the Locator. Change the test to:
+
+  it('should have a history', function() {
+    add(1, 2);
+    add(3, 4);
+
+    expect(history.last().getText()).toContain('1 + 2');
+    expect(history.first().getText()).toContain('foo'); // This is wrong!
+  });
+
+
+  --> Since the Calculator reports the oldest result at the bottom, the oldest addition (1 + 2) be the last history entry.
+      We're using the toContain Jasmine matcher to assert that the element text contains "1 + 2". The full element text 
+      will also contain the timestamp and the result.
+
+ -> ElementArrayFinder also has methods each, map, filter, and reduce which are analogous to JavaScript Array methods.
+
+
+----------------------------------------------------------------------------------------------------------------------------
+further details: http://www.protractortest.org/#/toc
+
+
+
+
+
+
+
+
+
